@@ -145,14 +145,21 @@ function selectRight(rid){
   if(!selectedLeft){
     el('feedback').textContent='先点左边一个词～';return;
   }
-  if(mode==='cluster'){
+  const existing=links.find(x=>x.rightId===rid);
+  if(existing){
     links=links.filter(x=>x.rightId!==rid);
-    links.push({leftId:selectedLeft,rightId:rid});
-  }else{
-    const existing=links.find(x=>x.rightId===rid);
-    if(existing) links=links.filter(x=>x.rightId!==rid);
-    else links.push({leftId:selectedLeft,rightId:rid});
+    el('feedback').className='feedback';
+    el('feedback').textContent='已取消这条连线';
+    markConnected();updateCounter();drawLines();
+    return;
   }
+  if(mode==='one'){
+    links=[{leftId:selectedLeft,rightId:rid}];
+  }else{
+    links.push({leftId:selectedLeft,rightId:rid});
+  }
+  el('feedback').className='feedback';
+  el('feedback').textContent=' ';
   markConnected();updateCounter();drawLines();
   if(mode==='one' && links.length===1) checkAnswer();
 }
