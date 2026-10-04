@@ -3,16 +3,12 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>IELTS Synonym Glass Match</title>
+<title>Milkshake · IELTS Synonym Match</title>
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 <div class="app">
-  <header class="topbar glass">
-    <div class="brand">
-      <div class="logo">↗</div>
-      <div><h1>IELTS Synonym Glass</h1><p>阅读同义替换 · 连连看</p></div>
-    </div>
+  <header class="topbar">
     <div class="statline">
       <div class="pill">进度 <strong id="seenStat">0</strong>/<span id="totalStat">253</span></div>
       <div class="pill">错题 <strong id="wrongStat">0</strong></div>
@@ -27,7 +23,6 @@
     </div>
     <div class="right-controls">
       <button class="tiny-btn" id="reviewBtn">错题优先</button>
-      <button class="tiny-btn" id="helpBtn">玩法</button>
       <button class="tiny-btn" id="resetBtn">重置</button>
     </div>
   </section>
@@ -63,17 +58,6 @@
 
   <div class="footer-note">
     词组按上传 PDF 的分组做成练习。原 PDF 第 83 条在同一编号里出现了两个明显不同的词簇，网页里拆成 83A / 83B；显式标注的“反义词”不作为正确答案。少数条目本身是“阅读替换/相关表达”的宽泛归类，并不都等于严格词典同义词。
-  </div>
-</div>
-
-<div class="modal-backdrop" id="helpModal">
-  <div class="modal glass">
-    <h2>玩法很简单</h2>
-    <p><b>1 : 1</b>：左边 1 个词，右边 4 个选项，只连 1 个最匹配的。</p>
-    <p><b>1 : N</b>：这是默认模式。左边 1 个词，右边混入多枚同组词和干扰项；把同组词全部连出来，再确认。</p>
-    <p><b>N : N</b>：我没有做“任意词互相连”的真·多对多——那样同义词组里会出现大量等价答案，判分反而很蠢。这里改成更稳的“词簇归类”：左侧 3 个锚点来自 3 个中文概念，右侧把它们的同组词打乱，你把每个词归回正确词簇。这个逻辑最适合刷阅读替换。</p>
-    <p>手机直接点就行；电脑也可以用 <kbd>Enter</kbd> 确认 / 下一题。</p>
-    <div class="row"><button class="primary" id="closeHelp">知道了</button></div>
   </div>
 </div>
 
