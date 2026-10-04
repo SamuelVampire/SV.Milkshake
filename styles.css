@@ -9,8 +9,8 @@
   --muted:#8d8d8d;
   --rose:#d7264b;          /* cherry red */
   --rose-soft:rgba(215,38,75,.12);
-  --green:#68d73f;         /* NCT grass green vibe */
-  --green-soft:rgba(104,215,63,.14);
+  --green:#d3ff72;         /* NCT grass green vibe */
+  --green-soft:rgba(211,255,114,.18);
   --good:#56c983;
   --bad:#e06c83;
   --amber:#d9a93a;
@@ -29,7 +29,7 @@ body{
   overflow-x:hidden;
   background:
     radial-gradient(circle at 88% 84%, rgba(215,38,75,.12), transparent 26%),
-    radial-gradient(circle at 14% 14%, rgba(104,215,63,.08), transparent 22%),
+    radial-gradient(circle at 14% 14%, rgba(211,255,114,.08), transparent 22%),
     linear-gradient(180deg,#f4f0ee 0%, #f6f2ef 100%);
 }
 body::before{
@@ -39,7 +39,7 @@ body::before{
   pointer-events:none;
   background:
     radial-gradient(circle at 86% 82%, rgba(215,38,75,.07), transparent 20%),
-    radial-gradient(circle at 10% 16%, rgba(104,215,63,.05), transparent 18%);
+    radial-gradient(circle at 10% 16%, rgba(211,255,114,.05), transparent 18%);
   filter:blur(30px);
 }
 button,select,input{font:inherit}
@@ -95,7 +95,7 @@ button{color:inherit}
   border:1px solid rgba(255,255,255,.72);background:rgba(255,255,255,.44);padding:8px 12px;border-radius:14px;cursor:pointer;color:var(--muted);transition:.18s
 }
 .tiny-btn:hover{background:#fff;color:var(--text)}
-.tiny-btn.on{color:var(--green);background:rgba(255,255,255,.78);border-color:rgba(104,215,63,.25)}
+.tiny-btn.on{color:var(--green);background:rgba(255,255,255,.78);border-color:rgba(211,255,114,.25)}
 .hero{
   margin-top:14px;border-radius:34px;min-height:176px;padding:28px 22px;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden
 }
@@ -146,8 +146,8 @@ button{color:inherit}
   box-shadow:0 0 0 3px rgba(215,38,75,.04),0 8px 24px rgba(0,0,0,.04)
 }
 .card.connected{
-  border-color:rgba(104,215,63,.22);
-  background:linear-gradient(135deg,rgba(104,215,63,.08),rgba(255,255,255,.95));
+  border-color:rgba(211,255,114,.22);
+  background:linear-gradient(135deg,rgba(211,255,114,.08),rgba(255,255,255,.95));
 }
 .card.correct{border-color:rgba(86,201,131,.26);background:rgba(86,201,131,.08)}
 .card.wrong{border-color:rgba(224,108,131,.24);background:rgba(224,108,131,.08)}
@@ -174,7 +174,7 @@ button{color:inherit}
   stroke:var(--green);
   stroke-width:2.7;
   stroke-dasharray:7 7;
-  filter:drop-shadow(0 0 4px rgba(104,215,63,.14));
+  filter:drop-shadow(0 0 4px rgba(211,255,114,.14));
 }
 .actions{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:14px;flex-wrap:wrap}
 .primary,.secondary{
