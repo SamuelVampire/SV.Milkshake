@@ -17,6 +17,7 @@ let review=!!saved.review;
 let current=null;
 let selectedLeft=null;
 let links=[];
+let corrections=[];
 let checked=false;
 
 function save(){
@@ -70,7 +71,7 @@ function pickAnchor(group){
   return base[Math.floor(Math.random()*base.length)];
 }
 function makeRound(){
-  checked=false;selectedLeft=null;links=[];
+  checked=false;selectedLeft=null;links=[];corrections=[];
   if(mode==='cluster') return makeClusterRound();
   const g=randomGroup();
   const anchor=pickAnchor(g);
@@ -122,19 +123,40 @@ function renderCards(){
     const d=document.createElement('div');
     d.className='card left-card';d.dataset.id=item.id;
     d.innerHTML=`<div class="anchor-wrap"><div class="word">${escapeHtml(item.word)}</div>${mode==='cluster'?`<div class="zh-mini">${escapeHtml(item.label)}</div>`:''}</div><span class="dot"></span>`;
-    d.addEventListener('click',()=>selectLeft(item.id));
+    d.addEventListener('click',()=>{ speakWord(item.word); selectLeft(item.id); });
     lc.appendChild(d);
   });
   current.right.forEach(item=>{
     const d=document.createElement('div');
     d.className='card right-card';d.dataset.id=item.id;
     d.innerHTML=`<span class="dot"></span><div class="word">${escapeHtml(item.word)}</div>`;
-    d.addEventListener('click',()=>selectRight(item.id));
+    d.addEventListener('click',()=>{ speakWord(item.word); selectRight(item.id); });
     rc.appendChild(d);
   });
   if(current.left.length===1){ selectedLeft=current.left[0].id; document.querySelector(`[data-id="${selectedLeft}"]`)?.classList.add('selected'); }
 }
 function escapeHtml(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function speakWord(word){
+  if(!('speechSynthesis' in window)) return;
+  const spoken=String(word)
+    .replace(/\//g,' or ')
+    .replace(/[()=]/g,' ')
+    .replace(/\s+/g,' ')
+    .trim();
+  window.speechSynthesis.cancel();
+  const utterance=new SpeechSynthesisUtterance(spoken);
+  utterance.lang='en-US';
+  utterance.rate=.86;
+  utterance.pitch=1;
+  window.speechSynthesis.speak(utterance);
+}
+function addCorrectionHint(card,text){
+  if(!card || card.querySelector('.correction-hint')) return;
+  const hint=document.createElement('div');
+  hint.className='correction-hint';
+  hint.textContent=text;
+  card.appendChild(hint);
+}
 function selectLeft(id){
   if(checked)return;
   selectedLeft=id;
@@ -183,56 +205,97 @@ function checkAnswer(){
   if(mode==='multi' && links.length===0){
     el('feedback').textContent='先连至少一个你认为正确的词。';return;
   }
+
   checked=true;
-  let allGood=true, correctCount=0;
+  corrections=[];
+  let allGood=true;
   const linkedRight=new Map(links.map(l=>[l.rightId,l.leftId]));
+
   current.right.forEach(r=>{
     const card=document.querySelector(`.right-card[data-id="${r.id}"]`);
-    let ok=false, should=false;
+
     if(mode==='cluster'){
-      should=true;
-      const leftId=linkedRight.get(r.id);
-      const left=current.left.find(l=>l.id===leftId);
-      ok=!!left && left.groupId===r.groupId;
-    }else{
-      should=r.groupId===current.groups[0].id;
-      const selected=linkedRight.has(r.id);
-      ok=(selected && should) || (!selected && !should);
-      if(should && selected) correctCount++;
-      if(should && !selected) card?.classList.add('missed');
+      const chosenLeftId=linkedRight.get(r.id);
+      const chosenLeft=current.left.find(l=>l.id===chosenLeftId);
+      const correctLeft=current.left.find(l=>l.groupId===r.groupId);
+      const ok=!!chosenLeft && chosenLeft.groupId===r.groupId;
+
+      if(ok){
+        card?.classList.add('correct');
+      }else{
+        allGood=false;
+        card?.classList.add('wrong');
+        if(correctLeft){
+          corrections.push({leftId:correctLeft.id,rightId:r.id});
+          addCorrectionHint(card,`正确：${correctLeft.word}`);
+        }
+      }
+      return;
     }
-    if(ok && linkedRight.has(r.id)) card?.classList.add('correct');
-    if(!ok && linkedRight.has(r.id)) card?.classList.add('wrong');
-    if(!ok) allGood=false;
+
+    const should=r.groupId===current.groups[0].id;
+    const selected=linkedRight.has(r.id);
+
+    if(selected && should){
+      card?.classList.add('correct');
+    }else if(selected && !should){
+      allGood=false;
+      card?.classList.add('wrong');
+      addCorrectionHint(card,'不应连接');
+    }else if(!selected && should){
+      allGood=false;
+      card?.classList.add('missed');
+      corrections.push({leftId:current.left[0].id,rightId:r.id});
+      addCorrectionHint(card,'应连接');
+    }
   });
-  // Mark paths
+
   links.forEach(l=>{
     const r=current.right.find(x=>x.id===l.rightId);
     const left=current.left.find(x=>x.id===l.leftId);
-    l.correct = mode==='cluster' ? (left && r && left.groupId===r.groupId) : (r && r.groupId===current.groups[0].id);
+    l.correct = mode==='cluster'
+      ? !!(left && r && left.groupId===r.groupId)
+      : !!(r && r.groupId===current.groups[0].id);
   });
+
   drawLines();
+
   current.groups.forEach(g=>{
     if(!saved.seen.includes(g.id))saved.seen.push(g.id);
     if(!allGood && !saved.wrong.includes(g.id))saved.wrong.push(g.id);
     if(allGood) saved.wrong=saved.wrong.filter(id=>id!==g.id);
   });
   save();
+
   if(allGood){
     el('feedback').className='feedback good';
-    el('feedback').textContent=mode==='cluster'?'全归对了。这个模式最接近阅读里真正的“替换识别”。':'全对 ✓';
+    el('feedback').textContent='全对 ✓';
+  }else if(mode==='cluster'){
+    const mapText=corrections.map(c=>{
+      const left=current.left.find(x=>x.id===c.leftId);
+      const right=current.right.find(x=>x.id===c.rightId);
+      return right && left ? `${right.word} → ${left.word}` : '';
+    }).filter(Boolean).join(' · ');
+    el('feedback').className='feedback correction-feedback';
+    el('feedback').innerHTML=`<strong>纠错：</strong> ${escapeHtml(mapText)}<br><span>红线是你的误连，绿色虚线是正确连接。</span>`;
   }else{
-    el('feedback').className='feedback bad';
-    el('feedback').textContent=mode==='multi' ? `这组有 ${current.needed} 个目标词；黄色是漏掉的，红色是误连。` : '有一处没归对，红色看误连。';
+    const answers=current.right
+      .filter(r=>r.groupId===current.groups[0].id)
+      .map(r=>r.word)
+      .join(' · ');
+    el('feedback').className='feedback correction-feedback';
+    el('feedback').innerHTML=`<strong>正确答案：</strong> ${escapeHtml(answers)}<br><span>红色是不该连的，绿色虚线补出你漏掉的正确连接。</span>`;
   }
-  el('checkBtn').style.display='none';el('nextBtn').style.display='inline-block';
+
+  el('checkBtn').style.display='none';
+  el('nextBtn').style.display='inline-block';
 }
 function drawLines(){
   const area=el('matchArea'), svg=el('lineSvg');
   const box=area.getBoundingClientRect();
   svg.setAttribute('viewBox',`0 0 ${box.width} ${box.height}`);
   svg.innerHTML='';
-  links.forEach(l=>{
+  const addPath=(l,className)=>{
     const a=document.querySelector(`.left-card[data-id="${l.leftId}"] .dot`);
     const b=document.querySelector(`.right-card[data-id="${l.rightId}"] .dot`);
     if(!a||!b)return;
@@ -242,9 +305,11 @@ function drawLines(){
     const dx=Math.max(34,(x2-x1)*.46);
     const p=document.createElementNS('http://www.w3.org/2000/svg','path');
     p.setAttribute('d',`M ${x1} ${y1} C ${x1+dx} ${y1}, ${x2-dx} ${y2}, ${x2} ${y2}`);
-    p.setAttribute('class','path'+(checked?(l.correct?' correct':' wrong'):''));
+    p.setAttribute('class',className);
     svg.appendChild(p);
-  });
+  };
+  links.forEach(l=>addPath(l,'path'+(checked?(l.correct?' correct':' wrong'):'')));
+  if(checked) corrections.forEach(c=>addPath(c,'path correction'));
 }
 function setMode(m){
   mode=m;saved.mode=m;save();
@@ -256,16 +321,12 @@ el('clearBtn').addEventListener('click',clearLinks);
 el('checkBtn').addEventListener('click',checkAnswer);
 el('nextBtn').addEventListener('click',renderRound);
 el('reviewBtn').addEventListener('click',()=>{review=!review;save();renderRound()});
-el('helpBtn').addEventListener('click',()=>el('helpModal').classList.add('show'));
-el('closeHelp').addEventListener('click',()=>el('helpModal').classList.remove('show'));
-el('helpModal').addEventListener('click',e=>{if(e.target===el('helpModal'))el('helpModal').classList.remove('show')});
 el('resetBtn').addEventListener('click',()=>{
   if(confirm('清空本网页保存的练习进度和错题记录？')){saved.seen=[];saved.wrong=[];save();renderRound()}
 });
 window.addEventListener('resize',()=>requestAnimationFrame(drawLines));
 window.addEventListener('keydown',e=>{
   if(e.key==='Enter'){ if(checked)renderRound(); else checkAnswer(); }
-  if(e.key==='Escape')el('helpModal').classList.remove('show');
 });
 renderStats();
 setMode(mode);
