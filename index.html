@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>IELTS Synonym Glass Match</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app">
+  <header class="topbar glass">
+    <div class="brand">
+      <div class="logo">↗</div>
+      <div><h1>IELTS Synonym Glass</h1><p>阅读同义替换 · 连连看</p></div>
+    </div>
+    <div class="statline">
+      <div class="pill">进度 <strong id="seenStat">0</strong>/<span id="totalStat">253</span></div>
+      <div class="pill">错题 <strong id="wrongStat">0</strong></div>
+    </div>
+  </header>
+
+  <section class="control-panel glass">
+    <div class="segment" id="modeSegment">
+      <button class="seg-btn" data-mode="one">1 : 1</button>
+      <button class="seg-btn active" data-mode="multi">1 : N</button>
+      <button class="seg-btn" data-mode="cluster">N : N</button>
+    </div>
+    <div class="right-controls">
+      <button class="tiny-btn" id="reviewBtn">错题优先</button>
+      <button class="tiny-btn" id="helpBtn">玩法</button>
+      <button class="tiny-btn" id="resetBtn">重置</button>
+    </div>
+  </section>
+
+  <section class="hero glass">
+    <div class="hero-inner">
+      <div class="eyebrow" id="heroEyebrow">PDF #1 · 单组匹配</div>
+      <div class="chinese" id="heroChinese">限制</div>
+      <div class="subnote" id="heroSub">从左侧词出发，连到右侧同义 / 替换词</div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+  </section>
+
+  <main class="board glass">
+    <div class="board-head">
+      <div class="board-title" id="boardTitle">先点 <b>左侧词</b>，再点右侧答案</div>
+      <div class="counter" id="roundCounter">本轮 0/0</div>
+    </div>
+
+    <div class="match-area" id="matchArea">
+      <svg class="lines" id="lineSvg" aria-hidden="true"></svg>
+      <div class="column" id="leftCol"><div class="col-label">Anchor</div></div>
+      <div class="column" id="rightCol"><div class="col-label">Synonym / Replacement</div></div>
+    </div>
+
+    <div class="feedback" id="feedback"> </div>
+    <div class="actions">
+      <button class="secondary" id="clearBtn">清空连线</button>
+      <button class="primary" id="checkBtn">确认</button>
+      <button class="primary" id="nextBtn" style="display:none">下一题</button>
+    </div>
+  </main>
+
+  <div class="footer-note">
+    词组按上传 PDF 的分组做成练习。原 PDF 第 83 条在同一编号里出现了两个明显不同的词簇，网页里拆成 83A / 83B；显式标注的“反义词”不作为正确答案。少数条目本身是“阅读替换/相关表达”的宽泛归类，并不都等于严格词典同义词。
+  </div>
+</div>
+
+<div class="modal-backdrop" id="helpModal">
+  <div class="modal glass">
+    <h2>玩法很简单</h2>
+    <p><b>1 : 1</b>：左边 1 个词，右边 4 个选项，只连 1 个最匹配的。</p>
+    <p><b>1 : N</b>：这是默认模式。左边 1 个词，右边混入多枚同组词和干扰项；把同组词全部连出来，再确认。</p>
+    <p><b>N : N</b>：我没有做“任意词互相连”的真·多对多——那样同义词组里会出现大量等价答案，判分反而很蠢。这里改成更稳的“词簇归类”：左侧 3 个锚点来自 3 个中文概念，右侧把它们的同组词打乱，你把每个词归回正确词簇。这个逻辑最适合刷阅读替换。</p>
+    <p>手机直接点就行；电脑也可以用 <kbd>Enter</kbd> 确认 / 下一题。</p>
+    <div class="row"><button class="primary" id="closeHelp">知道了</button></div>
+  </div>
+</div>
+
+<script src="data-01.js"></script>
+<script src="data-02.js"></script>
+<script src="data-03.js"></script>
+<script src="data-04.js"></script>
+<script src="data-05.js"></script>
+<script src="data-06.js"></script>
+<script src="data-07.js"></script>
+<script src="data-08.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
