@@ -203,7 +203,7 @@ button{color:inherit}
   padding-left:8px;
   font-size:10px;
   font-weight:700;
-  color:var(--green);
+  color:#68d73f;
   white-space:nowrap;
 }
 .footer-note{margin:14px auto 0;max-width:860px;text-align:center;color:#acaaa8;font-size:11px;line-height:1.7}
